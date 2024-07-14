@@ -1,0 +1,10 @@
+{
+  "key": {
+    "_loop": {
+      "items": "$items",
+      "block": {
+        "value": "$item"
+      }
+    }
+  }
+}

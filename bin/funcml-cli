@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+if ENV.fetch('LOCAL_DEV', nil)
+  $LOAD_PATH.unshift File.expand_path("../../funcml-core/lib", __dir__)
+end
+
+require "bundler/setup"
+require "thor"
+require "funcml-core"
+require "funcml-cli"
+
+require "json"
+require "yaml"
+
+class App < Thor
+  def self.exit_on_failure?
+    true
+  end
+
+  desc :version, "Shows currently used versions of funcml"
+  def version
+    puts Funcmlcli::Version.show
+    exit(0)
+  end
+
+  desc :render_all, "Renders all files in directory"
+  option :directory, aliases: [:d], desc: "Source directory", default: Dir.pwd, type: "string"
+  option :extension_filter, aliases: [:x], desc: "Only select extensions", default: [], type: "string", repeatable: true
+  option :recursive, aliases: [:r], desc: "Recursive rendering", default: false, type: "boolean"
+  option :mutation_files, aliases: [:m], desc: "External mutation files", default: [], type: "string", repeatable: true
+  option :output_format, aliases: [:f], desc: "Output format, either yaml or json", default: "yaml", type: "string"
+  option :output_stdout, aliases: [:s], desc: "Set output to STDOUT", default: true, type: "boolean"
+  option :output_directory, aliases: [:o], desc: "Output directory for mutated files", default: "./output", type: "string"
+  def render_all
+    renderer = Funcmlcli::RenderAll.new(options)
+    renderer.render!
+    exit(0)
+  end
+end
+
+App.start
