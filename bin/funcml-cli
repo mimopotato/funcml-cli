@@ -24,17 +24,35 @@ class App < Thor
     exit(0)
   end
 
-  desc :render_all, "Renders all files in directory"
-  option :directory, aliases: [:d], desc: "Source directory", default: Dir.pwd, type: "string"
-  option :extension_filter, aliases: [:x], desc: "Only select extensions", default: [], type: "string", repeatable: true
-  option :recursive, aliases: [:r], desc: "Recursive rendering", default: false, type: "boolean"
+  desc "render PATH", "Render target file"
   option :mutation_files, aliases: [:m], desc: "External mutation files", default: [], type: "string", repeatable: true
   option :output_format, aliases: [:f], desc: "Output format, either yaml or json", default: "yaml", type: "string"
   option :output_stdout, aliases: [:s], desc: "Set output to STDOUT", default: true, type: "boolean"
-  option :output_directory, aliases: [:o], desc: "Output directory for mutated files", default: "./output", type: "string"
-  def render_all
-    renderer = Funcmlcli::RenderAll.new(options)
+  option :output_directory, aliases: [:o], desc: "Output directory for mutated files", default: "false", type: "string"
+  def render(path)
+    renderer = Funcmlcli::Render.new(path, options)
     renderer.render!
+    exit(0)
+  end
+
+  desc "render-all PATH", "Render all files in PATH"
+  option :mutation_files, aliases: [:m], desc: "External mutation files", default: [], type: "string", repeatable: true
+  option :output_format, aliases: [:f], desc: "Output format, either yaml or json", default: "yaml", type: "string"
+  option :output_stdout, aliases: [:s], desc: "Set output to STDOUT", default: true, type: "boolean"
+  option :output_directory, aliases: [:o], desc: "Output directory for mutated files", default: "false", type: "string"
+  option :extensions, aliases: [:x], desc: "Only select files with according extensions", default: [], type: "string", repeatable: true 
+
+  def render_all(path)
+    files = []
+    options[:extensions].each do |extension|
+      files << Dir.glob("#{path}/**/*.#{extension}")
+    end
+
+    files.flatten.each do |file|
+      renderer = Funcmlcli::Render.new(file, options)
+      renderer.render!
+    end
+    
     exit(0)
   end
 end

@@ -16,8 +16,12 @@ module Funcmlcli
     end
 
     def _save_or_display(file, mutated_struct)
-      _display(file, mutated_struct) if @options[:output_stdout]
-      _save(file, mutated_struct) unless @options[:output_stdout]
+      if @options[:output_stdout]
+        _display(file, mutated_struct) 
+        return true
+      end
+
+      _save(file, mutated_struct)
     end
 
     def _display(file, mutated_struct)
